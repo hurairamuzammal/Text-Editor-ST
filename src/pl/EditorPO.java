@@ -874,7 +874,10 @@ public class EditorPO extends JFrame {
 			int fileId = (int) tableModel.getValueAt(selectedRow, 0);
 			String fileName = (String) tableModel.getValueAt(selectedRow, 1);
 			String content = contentTextArea.getText();
-
+			int wordCount = calculateWordCount(content);
+			if (wordCount <= 500) {
+				return;
+			}
 			if (content == null || content.trim().isEmpty()) {
 				content = "";
 			}
