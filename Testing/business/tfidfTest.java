@@ -1,5 +1,5 @@
 // test written by M Abu Huraira
-package data;
+package business;
 
 import dal.TFIDFCalculator;
 import org.junit.jupiter.api.Test;
