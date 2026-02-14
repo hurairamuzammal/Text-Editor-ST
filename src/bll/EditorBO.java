@@ -59,26 +59,9 @@ public class EditorBO implements IEditorBO {
 
 	@Override
 	public boolean importTextFiles(File file, String fileName) {
-		StringBuilder fileContent = new StringBuilder();
-		String fileExtension = getFileExtension(fileName);
-		BufferedReader reader;
-		try {
-			reader = new BufferedReader(new FileReader(file));
-			String line;
-
-			while ((line = reader.readLine()) != null) {
-				fileContent.append(line).append("\n");
-			}
-			reader.close();
-
-			if (fileExtension.equalsIgnoreCase("txt") || fileExtension.equalsIgnoreCase("md5")) {
-				return db.createFileInDB(fileName, fileContent.toString());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.error(e.getMessage());
-		}
-		return false;
+		importCommand cmd = new importCommand(db, file, fileName);
+		cmd.execute();
+		return cmd.isSuccess();
 	}
 
 	@Override
@@ -105,7 +88,9 @@ public class EditorBO implements IEditorBO {
 
 	@Override
 	public String transliterate(int pageId, String arabicText) {
-		return db.transliterateInDB(pageId, arabicText);
+		TransliterateCommand cmd = new TransliterateCommand(db, pageId, arabicText);
+		cmd.execute();
+		return cmd.getResult();
 	}
 
 	@Override
