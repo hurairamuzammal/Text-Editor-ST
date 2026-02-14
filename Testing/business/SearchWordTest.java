@@ -43,10 +43,9 @@ public class SearchWordTest {
 
     private List<Documents> createMockDocs(String content) {
         List<Documents> docs = new ArrayList<>();
-        Documents doc = new Documents();
-        doc.setName("TestDoc");
-        Pages page = new Pages();
-        page.setPageContent(content);
+        Documents doc = new Documents(0, "TestDoc", content, content, content, null);
+        Pages page = new Pages(0, 0, 0, content);
+
         List<Pages> pages = new ArrayList<>();
         pages.add(page);
         doc.setPages(pages);
