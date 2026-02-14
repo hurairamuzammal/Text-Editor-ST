@@ -36,6 +36,23 @@ class tfidfTest{
 	    }
 
 	    @Test
+	    public void testTFIDFMathTrapNegativeScore() {
+	        TFIDFCalculator calculator = new TFIDFCalculator();
+	        // This triggers the log(N/df) trap where N=1, df=1
+	        calculator.addDocumentToCorpus("تفاح"); 
+	        double score = calculator.calculateDocumentTfIdf("تفاح");
+	        assertTrue(score >= 0, "FAILED: TF-IDF calculation produced a negative score: " + score);
+	    }
+
+	    @Test
+	    public void testTrapEmptyCorpusError() {
+	        TFIDFCalculator calculator = new TFIDFCalculator();
+	        // Negative case: Calculating with 0 documents
+	        double score = calculator.calculateDocumentTfIdf("تفاح");
+	        assertTrue(Double.isFinite(score), "FAILED: Calculation resulted in non-finite value (NaN/Infinity) for empty corpus.");
+	    }
+	    
+	    @Test
 	    public void testTFIDFNegativePathSpecialChars() {
 	        TFIDFCalculator calculator = new TFIDFCalculator();
 	        calculator.addDocumentToCorpus("تفاح");
