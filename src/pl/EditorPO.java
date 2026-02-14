@@ -90,9 +90,16 @@ public class EditorPO extends JFrame {
 	private Thread totalLineCountThread;
 	private boolean wordCountRunning = true; 
 	private boolean avgWordLengthRunning = true; 
+	
 	private boolean totalLineCountRunning = true;
 	Font buttonFont = new Font("Arial", Font.BOLD, 12);
 
+	//these fileds are added to fix the issue regarding autosave logic
+	
+	public int currentFileId;
+	public String currentFileName;
+
+	
 	public EditorPO(IEditorBO businessObj) {
 		this.businessObj = businessObj;
 		
@@ -126,6 +133,13 @@ public class EditorPO extends JFrame {
 		setVisible(true);
 	}
 
+	public JTable getFileTable() {
+	    return fileTable;
+	}
+
+	public JTextArea getContentTextArea() {
+	    return contentTextArea;
+	}
 	private void setupMainMenuPanel() {
 
 		tableModel = new DefaultTableModel(new Object[] { "File ID", "File Name", "Last Modified", "Date Created" },
@@ -652,6 +666,9 @@ public class EditorPO extends JFrame {
 	private void openEditPanel(int fileId) {
 		currentPage = 1;
 		doc = businessObj.getFile(fileId);
+		this.currentFileId = fileId;
+		this.currentFileName = doc.getName();
+
 		pages = doc.getPages();
 		totalPageCount = pages.size();
 
@@ -868,31 +885,30 @@ public class EditorPO extends JFrame {
 		}
 	}
 
-	private void autoSaveFile() throws RemoteException, InterruptedException {
-		int selectedRow = fileTable.getSelectedRow();
-		if (selectedRow != -1) {
-			int fileId = (int) tableModel.getValueAt(selectedRow, 0);
-			String fileName = (String) tableModel.getValueAt(selectedRow, 1);
-			String content = contentTextArea.getText();
-			int wordCount = calculateWordCount(content);
-			if (wordCount <= 500) {
-				return;
-			}
-			if (content == null || content.trim().isEmpty()) {
-				content = "";
-			}
+	public void autoSaveFile() throws RemoteException {
+	    String content = contentTextArea.getText();
+	    int wordCount = calculateWordCount(content);
 
-			boolean updated = businessObj.updateFile(fileId, fileName, currentPage, content);
-			if (updated) {
-				savingStatusLabel.setVisible(true);
-				Thread.sleep(5000);
-				savingStatusLabel.setVisible(false);
-			}
-		} else {
-			JOptionPane.showMessageDialog(null, "Unable to Save File");
-			logger.error("Unable to Save File");
-		}
+	    if (content == null || content.trim().isEmpty()) {
+	        return;
+	    }
+
+	    if (wordCount <= 500) {
+	        return;
+	    }
+
+	    boolean updated = businessObj.updateFile(
+	            currentFileId,
+	            currentFileName,
+	            currentPage,
+	            content
+	    );
+
+	    if (updated) {
+	        SwingUtilities.invokeLater(() -> savingStatusLabel.setVisible(true));
+	    }
 	}
+
 
 	private void nextPage() {
 		if (currentPage < totalPageCount) {
