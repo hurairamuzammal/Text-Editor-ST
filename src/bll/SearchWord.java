@@ -12,39 +12,29 @@ import pl.EditorPO;
 
 public class SearchWord {
 	public static List<String> searchKeyword(String keyword, List<Documents> docs) {
-		final Logger LOGGER = LogManager.getLogger(EditorPO.class);
-		// TODO Auto-generated method stub
-		List<String> getFiles = new ArrayList<>();
+		List<String> results = new ArrayList<>();
 		if (keyword == null || keyword.isEmpty()) {
 			throw new IllegalArgumentException("Could not Search, Please Enter a keyword to search");
 		}
 
 		for (Documents doc : docs) {
-			for (Pages page : doc.getPages()) {
-				String pageContent = page.getPageContent();
-				if (pageContent.toLowerCase().contains(keyword.toLowerCase())) {
-
-					String[] words = pageContent.split("\\s+");
-
-					for (int i = 0; i < words.length; i++) {
-						String cleanWord = words[i].replaceAll("[\\p{Punct}،؛؟]", "");
-						if (cleanWord.equalsIgnoreCase(keyword)) {
-
-							String prefixWord;
-							if (i > 0) {
-								prefixWord = words[i - 1];
-							} else {
-								prefixWord = "";
-							}
-							getFiles.add(doc.getName() + " - " + prefixWord + " " + keyword + "...");
-							break;
-						}
-					}
-					break;
+			StringBuilder fullText = new StringBuilder();
+			for (Pages p : doc.getPages()) {
+				if (p.getPageContent() != null) {
+					fullText.append(p.getPageContent());
+				}
+			}
+			
+			String[] words = fullText.toString().split("\\s+");
+			for (int i = 0; i < words.length; i++) {
+				String cleanWord = words[i].replaceAll("[\\p{Punct}،؛؟]", "");
+				if (cleanWord.equalsIgnoreCase(keyword)) {
+					String prefix = (i > 0) ? words[i - 1] : "";
+					results.add(doc.getName() + " - " + prefix + " " + keyword + "...");
 				}
 			}
 		}
-		return getFiles;
+		return results;
 	}
 
 }
